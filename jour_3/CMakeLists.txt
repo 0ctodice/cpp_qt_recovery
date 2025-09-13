@@ -14,6 +14,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 add_executable(main
     src/main.cpp
     src/assetRenamer.cpp
+    src/fileRenamer.cpp
 )
 
 target_link_libraries(main PRIVATE Qt6::Widgets)

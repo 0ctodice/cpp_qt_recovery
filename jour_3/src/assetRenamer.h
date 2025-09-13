@@ -16,8 +16,10 @@ private:
 
 public:
     AssetRenamer(QWidget *parent = nullptr);
+    bool isReady() const;
 public slots:
     void chooseFolder();
     void renameFiles();
     void logMessage(const QString &message);
+    void activateRenameButton();
 };

@@ -6,16 +6,28 @@ FileRenamer::FileRenamer(const QString &folder, const QString &prefix) : _folder
 {
 }
 
-QStringList FileRenamer::listFiles() const { return QDir(_folder).entryList(); }
+QStringList FileRenamer::listFiles() const { return QDir(_folder).entryList(QDir::Files, QDir::Name); }
 
-bool FileRenamer::renameAll(QStringList &renamedFiles, QStringList &errors)
+bool FileRenamer::renameAll(QStringList &renamedFiles)
 {
+    if (_folder.isEmpty() || _prefix.isEmpty())
+    {
+        return false;
+    }
+
     for (auto fileName : listFiles())
     {
         QFile file(_folder + "/" + fileName);
-        QString newName = _prefix + "_" + fileName;
-        bool status = file.rename(newName);
-        renamedFiles.append(file.fileName());
-        errors.append(status ? fileName + " | successfully renamed" : fileName + " | error : couldn't rename it");
+        QString newName = _folder + "/" + _prefix + "_" + fileName;
+        if (!file.rename(newName))
+        {
+            emit fileRenameError("Error renaming " + fileName + ": " + file.errorString());
+        }
+        else
+        {
+            renamedFiles.append(file.fileName());
+        }
     }
+
+    return true;
 }
