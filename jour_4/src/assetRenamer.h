@@ -20,6 +20,9 @@ private:
 
     void setupMenuBar();
 
+private slots:
+    void showAbout() const;
+
 public:
     AssetRenamer(QWidget *parent = nullptr);
     bool isReady() const;

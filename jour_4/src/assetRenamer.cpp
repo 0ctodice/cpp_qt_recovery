@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QFileDialog>
+#include <QMessageBox>
 
 AssetRenamer::AssetRenamer(QWidget *parent) : QWidget(parent)
 {
@@ -36,9 +37,15 @@ void AssetRenamer::setupMenuBar()
 {
     _menu = new QMenuBar(this);
     auto *fileMenu = _menu->addMenu("File");
-    fileMenu->addAction("Quit");
+    auto *quitAction = fileMenu->addAction("Quit");
     auto *helpMenu = _menu->addMenu("Help");
-    helpMenu->addAction("About");
+    auto *aboutAction = helpMenu->addAction("About");
+    connect(quitAction, &QAction::triggered, this, &QWidget::close);
+    connect(aboutAction, &QAction::triggered, this, &AssetRenamer::showAbout);
+}
+void AssetRenamer::showAbout() const
+{
+    QMessageBox::information(nullptr, "About", "this tool allows you to rename multiple files with the same prefix.");
 }
 void AssetRenamer::logMessage(const QString &message) { _log->append(message); }
 bool AssetRenamer::isReady() const { return !_folderInput->text().isEmpty() && !_prefixInput->text().isEmpty(); }

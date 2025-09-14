@@ -68,6 +68,7 @@
         "qvboxlayout": "cpp",
         "qlistwidget": "cpp",
         "qwidget": "cpp",
-        "qlineedit": "cpp"
+        "qlineedit": "cpp",
+        "qfiledialog": "cpp"
     }
 }
