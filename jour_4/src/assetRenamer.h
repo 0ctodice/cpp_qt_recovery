@@ -5,6 +5,7 @@
 #include <QTextEdit>
 #include <QMenuBar>
 #include <QProgressBar>
+#include <QLabel>
 
 class AssetRenamer : public QWidget
 {
@@ -17,11 +18,8 @@ private:
     QPushButton *_renameButton;
     QTextEdit *_log;
     QProgressBar *_progressBar;
-
+    QLabel *_label;
     void setupMenuBar();
-
-private slots:
-    void showAbout() const;
 
 public:
     AssetRenamer(QWidget *parent = nullptr);
@@ -30,5 +28,8 @@ public slots:
     void chooseFolder();
     void renameFiles();
     void logMessage(const QString &message);
+    void logError(const QString &message);
     void activateRenameButton();
+    void showAbout() const;
+    void updateLabel(int number);
 };

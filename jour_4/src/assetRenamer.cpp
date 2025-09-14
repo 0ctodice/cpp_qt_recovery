@@ -4,7 +4,6 @@
 #include <QGridLayout>
 #include <QFileDialog>
 #include <QMessageBox>
-
 AssetRenamer::AssetRenamer(QWidget *parent) : QWidget(parent)
 {
     setupMenuBar();
@@ -17,6 +16,7 @@ AssetRenamer::AssetRenamer(QWidget *parent) : QWidget(parent)
     _log = new QTextEdit(this);
     _log->setReadOnly(true);
     _log->setText("Welcome to the asset renamer!");
+    _label = new QLabel("Files found : 0", this);
     QVBoxLayout *generalLayout = new QVBoxLayout(this);
     QGridLayout *inputsLayout = new QGridLayout();
     inputsLayout->addWidget(_folderInput, 0, 0);
@@ -25,6 +25,7 @@ AssetRenamer::AssetRenamer(QWidget *parent) : QWidget(parent)
     inputsLayout->addWidget(_renameButton, 1, 1);
     generalLayout->addWidget(_menu);
     generalLayout->addLayout(inputsLayout);
+    generalLayout->addWidget(_label);
     generalLayout->addWidget(_log);
     generalLayout->addWidget(_progressBar);
     setLayout(generalLayout);
@@ -43,11 +44,14 @@ void AssetRenamer::setupMenuBar()
     connect(quitAction, &QAction::triggered, this, &QWidget::close);
     connect(aboutAction, &QAction::triggered, this, &AssetRenamer::showAbout);
 }
-void AssetRenamer::showAbout() const
-{
-    QMessageBox::information(nullptr, "About", "this tool allows you to rename multiple files with the same prefix.");
-}
+void AssetRenamer::showAbout() const { QMessageBox::information(nullptr, "About", "this tool allows you to rename multiple files with the same prefix."); }
 void AssetRenamer::logMessage(const QString &message) { _log->append(message); }
+void AssetRenamer::logError(const QString &message)
+{
+    _log->setTextColor(Qt::red);
+    _log->append(message);
+    _log->setTextColor(Qt::black);
+}
 bool AssetRenamer::isReady() const { return !_folderInput->text().isEmpty() && !_prefixInput->text().isEmpty(); }
 void AssetRenamer::activateRenameButton() { _renameButton->setEnabled(isReady()); }
 void AssetRenamer::chooseFolder()
@@ -62,14 +66,23 @@ void AssetRenamer::renameFiles()
     logMessage("renaming every files inside : " + _folderInput->text());
     logMessage("using the prefix : " + _prefixInput->text());
     FileRenamer fileRenamer(_folderInput->text(), _prefixInput->text());
-    connect(&fileRenamer, &FileRenamer::fileRenameError, this, &AssetRenamer::logMessage);
+    connect(&fileRenamer, &FileRenamer::fileRenameError, this, &AssetRenamer::logError);
     connect(&fileRenamer, &FileRenamer::numberOfFilesCatched, _progressBar, &QProgressBar::setMaximum);
+    connect(&fileRenamer, &FileRenamer::numberOfFilesCatched, this, &AssetRenamer::updateLabel);
     connect(&fileRenamer, &FileRenamer::filesCounter, _progressBar, &QProgressBar::setValue);
     QStringList renamedFiles;
-    fileRenamer.renameAll(renamedFiles);
-    logMessage("Done renaming! here's all the new name :");
-    for (auto file : renamedFiles)
+    if (fileRenamer.renameAll(renamedFiles))
     {
-        logMessage(file);
+        logMessage("Done renaming! here's all the new name :");
+        for (auto file : renamedFiles)
+        {
+            logMessage(file);
+        }
     }
+}
+void AssetRenamer::updateLabel(int number)
+{
+    std::stringstream label;
+    label << "Files found : " << number;
+    _label->setText(QString::fromStdString(label.str()));
 }
